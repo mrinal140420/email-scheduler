@@ -4,11 +4,18 @@
 [![Express](https://img.shields.io/badge/Express-TypeScript-blue?style=for-the-badge&logo=express)](https://expressjs.com/)
 [![BullMQ](https://img.shields.io/badge/BullMQ-Redis-red?style=for-the-badge&logo=redis)](https://bullmq.io/)
 [![Elasticsearch](https://img.shields.io/badge/Elasticsearch-8-yellow?style=for-the-badge&logo=elasticsearch)](https://www.elastic.co/)
-[![Prisma](https://img.shields.io/badge/Prisma-PostgreSQL-green?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-green?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
 
-A production-grade, distributed email scheduling service and high-throughput campaign dashboard built for the **ReachInbox / Outbox Labs Software Development Intern Assessment**.
+A production-grade, distributed email scheduling service and campaign dashboard built for the **ReachInbox / Outbox Labs Software Development Intern Assessment**.
 
-Designed to handle thousands of concurrent email jobs with persistent BullMQ delayed queues (no cron jobs), distributed Redis sliding-window hourly rate limiting, Slack notifications on quota breaches, multi-sender fake SMTP via Ethereal Email, Elasticsearch indexing, and an aesthetic dark-mode dashboard matching Figma.
+### 🌐 Live Production Deployments
+* **Hosted Frontend (Vercel)**: [https://outboxlabs-email-scheduler-phi.vercel.app/](https://outboxlabs-email-scheduler-phi.vercel.app/)
+* **Hosted Backend API (Render)**: [https://outboxlabs-iyxb.onrender.com/](https://outboxlabs-iyxb.onrender.com/)
+* **Live BullMQ Queue Dashboard**: [https://outboxlabs-iyxb.onrender.com/admin/queues](https://outboxlabs-iyxb.onrender.com/admin/queues)
+* **GitHub Repository**: [https://github.com/mrinal140420/outboxlabs](https://github.com/mrinal140420/outboxlabs)
+* **Target Collaborators**: Invited `Mitrajit` and `Yadav036`
+
+Designed to handle thousands of concurrent email jobs with persistent BullMQ delayed queues (no cron jobs), distributed Redis sliding-window hourly rate limiting, Slack notifications on quota breaches, multi-sender fake SMTP via Ethereal Email, Elasticsearch indexing, and an aesthetic UI matching the exact [Figma Design](https://www.figma.com/design/kOTwGlESjijCYnMgtHfvfU/Outbox-Labs-Assignment?node-id=59-4050&p=f&m=dev) (Light mode, `#00A343` green accents, "ONB" logo, Oliver Brown profile).
 
 ---
 
@@ -116,13 +123,14 @@ Designed to handle thousands of concurrent email jobs with persistent BullMQ del
 ### Frontend
 | Requirement | Status | Implementation Details |
 |---|---|---|
-| **Next.js 14 + Tailwind CSS** | ✅ Complete | App Router, modern dark UI matching Figma (`#0B0C0E` palette) |
-| **Google OAuth Login** | ✅ Complete | Real OAuth callback handling, token storage, and logout |
-| **Main Dashboard** | ✅ Complete | Top metrics summary, tabs, live queue link, user profile avatar |
-| **Compose Modal** | ✅ Complete | Subject, body, start time picker, delay throttle, hourly limit |
+| **Next.js 14 + Tailwind CSS** | ✅ Complete | App Router, modern light UI matching exact Figma screenshots (`#F6F8F7`, `#00A343` accents, ONB logo) |
+| **Google OAuth Login** | ✅ Complete | Real OAuth 2.0 PKCE flow with user profile upsert, token session, and Oliver Brown demo fallback |
+| **Main Dashboard** | ✅ Complete | Queue / Sent pill toggles, live queue link, user profile avatar and logout |
+| **Compose View** | ✅ Complete | Recipient input, CSV / Lead Dropzone parser, Send Later datetime picker |
 | **CSV / Lead Upload** | ✅ Complete | Drag-and-drop parser with live count of detected email addresses |
 | **Scheduled Emails Table** | ✅ Complete | Recipient, subject, scheduled time, live countdown, cancel action |
 | **Sent Emails Table** | ✅ Complete | Recipient, subject, sent timestamp, status badge, Ethereal preview link |
+| **Thread View** | ✅ Complete | Matches Figma Image 4 with yellow callout banner, metadata chips, and body view |
 | **Elasticsearch Search Bar** | ✅ Complete | Multi-field search across recipient, subject, and content |
 | **Slack Connect Modal** | ✅ Complete | Webhook connection, connection status indicator, test alert button |
 
@@ -159,11 +167,27 @@ WORKER_CONCURRENCY=5
 DELAY_BETWEEN_EMAILS_MS=2000
 MAX_EMAILS_PER_HOUR=200
 
-# Optional: Real Google & Slack credentials
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-SLACK_WEBHOOK_URL=
+# Google OAuth 2.0 Credentials (Real Google Login)
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+
+# Slack App / Webhook Credentials
+SLACK_CLIENT_ID=
+SLACK_CLIENT_SECRET=
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 ```
+
+### 🔑 Setting up Real Google OAuth in 2 Minutes
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+2. Create a Project and configure the **OAuth Consent Screen** (User type: *External*, add scopes `.../auth/userinfo.profile` and `.../auth/userinfo.email`).
+3. Click **Create Credentials** -> **OAuth Client ID** -> Application Type: **Web application**.
+4. Add **Authorized redirect URIs**:
+   - For Local Dev: `http://localhost:5000/api/auth/google/callback`
+   - For Production: `https://outboxlabs-iyxb.onrender.com/api/auth/google/callback`
+5. Copy your **Client ID** and **Client Secret** into `backend/.env` (and into Render Environment Variables for production).
+6. When users click **Login with Google**, they are redirected through Google's consent screen, authenticated, their profile (name, email, avatar) is upserted into the database, and their session is persisted on the frontend with a simple Logout option.
+*(Note: If Google credentials are not set in the environment, the app gracefully falls back to an instant Oliver Brown session so evaluators can test all scheduling features without setup blockers).*
 
 ---
 
