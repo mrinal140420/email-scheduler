@@ -102,10 +102,10 @@ export async function searchEmailJobs(query: string) {
   const dbResults = await prisma.emailJob.findMany({
     where: {
       OR: [
-        { recipient: { contains: query, mode: 'insensitive' } },
-        { subject: { contains: query, mode: 'insensitive' } },
-        { body: { contains: query, mode: 'insensitive' } },
-        { status: { contains: query, mode: 'insensitive' } },
+        { recipient: { contains: query } },
+        { subject: { contains: query } },
+        { body: { contains: query } },
+        { status: { contains: query } },
       ],
     },
     include: {
