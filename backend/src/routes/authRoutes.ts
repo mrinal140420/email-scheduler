@@ -7,33 +7,53 @@ const router = Router();
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
-const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-
 const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID || '';
 const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET || '';
+
+function getBackendBase(req: Request): string {
+  if (process.env.BACKEND_URL) return process.env.BACKEND_URL;
+  const host = req.get('host');
+  const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+  return `${protocol}://${host}`;
+}
+
+function getFrontendBase(req: Request): string {
+  if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
+  const referer = req.get('referer');
+  if (referer) {
+    try {
+      return new URL(referer).origin;
+    } catch {
+      // Ignore
+    }
+  }
+  return 'http://localhost:3000';
+}
 
 /**
  * GET /api/auth/google/url
  * Returns Google OAuth Authorization URL
  */
-router.get('/google/url', (_req: Request, res: Response) => {
+router.get('/google/url', (req: Request, res: Response) => {
+  const frontendUrl = getFrontendBase(req);
+  const backendUrl = getBackendBase(req);
+  const callbackUrl = process.env.GOOGLE_CALLBACK_URL || `${backendUrl}/api/auth/google/callback`;
+
   if (!GOOGLE_CLIENT_ID) {
-    // If client ID is not configured, supply mock/demo mode URL
     return res.json({
       configured: false,
-      url: `${FRONTEND_URL}/login?demo_auth=true`,
+      url: `${frontendUrl}/login?demo_auth=true`,
       message: 'Google Client ID not provided in environment. Demo login fallback enabled.',
     });
   }
 
   const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
   const options = {
-    redirect_uri: GOOGLE_CALLBACK_URL,
+    redirect_uri: callbackUrl,
     client_id: GOOGLE_CLIENT_ID,
     access_type: 'offline',
     response_type: 'code',
-    prompt: 'consent',
+    prompt: 'consent select_account',
     scope: [
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/userinfo.email',
@@ -50,8 +70,12 @@ router.get('/google/url', (_req: Request, res: Response) => {
  */
 router.get('/google/callback', async (req: Request, res: Response) => {
   const code = req.query.code as string;
+  const frontendUrl = getFrontendBase(req);
+  const backendUrl = getBackendBase(req);
+  const callbackUrl = process.env.GOOGLE_CALLBACK_URL || `${backendUrl}/api/auth/google/callback`;
+
   if (!code) {
-    return res.redirect(`${FRONTEND_URL}/login?error=no_code`);
+    return res.redirect(`${frontendUrl}/login?error=no_code`);
   }
 
   try {
@@ -59,7 +83,7 @@ router.get('/google/callback', async (req: Request, res: Response) => {
       code,
       client_id: GOOGLE_CLIENT_ID,
       client_secret: GOOGLE_CLIENT_SECRET,
-      redirect_uri: GOOGLE_CALLBACK_URL,
+      redirect_uri: callbackUrl,
       grant_type: 'authorization_code',
     });
 
@@ -93,10 +117,10 @@ router.get('/google/callback', async (req: Request, res: Response) => {
       })
     ).toString('base64');
 
-    return res.redirect(`${FRONTEND_URL}?token=${userTokenPayload}`);
+    return res.redirect(`${frontendUrl}?token=${userTokenPayload}`);
   } catch (error: any) {
     console.error('Google OAuth callback error:', error.response?.data || error.message);
-    return res.redirect(`${FRONTEND_URL}/login?error=oauth_failed`);
+    return res.redirect(`${frontendUrl}/login?error=oauth_failed`);
   }
 });
 
