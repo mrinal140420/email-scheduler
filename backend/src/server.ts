@@ -22,7 +22,21 @@ app.use(express.urlencoded({ extended: true }));
 // Setup Bull-Board Dashboard
 app.use('/admin/queues', setupBullBoard());
 
-// Health Check
+// Root & Health Check
+app.get('/', (_req: Request, res: Response) => {
+  res.json({
+    service: 'ReachInbox Email Job Scheduler Backend',
+    status: 'online',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      bullBoard: '/admin/queues',
+      emails: '/api/emails',
+      stats: '/api/stats',
+    },
+  });
+});
+
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
