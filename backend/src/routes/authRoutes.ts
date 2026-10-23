@@ -45,10 +45,9 @@ router.get('/google/url', (req: Request, res: Response) => {
   const callbackUrl = process.env.GOOGLE_CALLBACK_URL || `${backendUrl}/api/auth/google/callback`;
 
   if (!clientId) {
-    return res.json({
+    return res.status(500).json({
       configured: false,
-      url: `${frontendUrl}/login?demo_auth=true`,
-      message: 'Google Client ID not provided in environment. Demo login fallback enabled.',
+      error: 'Google Client ID not configured in server environment.',
     });
   }
 

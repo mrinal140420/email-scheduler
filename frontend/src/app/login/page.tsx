@@ -9,54 +9,31 @@ export default function LoginPage() {
   const [googleUrl, setGoogleUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check if demo auth or fallback requested
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('demo_auth') === 'true') {
-      const demoUser = {
-        id: 'user-oliver-brown',
-        name: 'Oliver Brown',
-        email: 'oliver.brown@domain.io',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=faces',
-      };
-      const token = btoa(JSON.stringify(demoUser));
-      window.location.href = `/?token=${token}`;
-      return;
-    }
-
     authApi.getGoogleLoginUrl().then((res) => {
       if (res && res.configured && res.url) {
         setGoogleUrl(res.url);
       }
-    }).catch(() => {
-      // Fallback
+    }).catch((err) => {
+      console.error('Failed to load Google OAuth URL:', err);
     });
   }, []);
 
   const handleGoogleLogin = () => {
     if (googleUrl) {
       window.location.href = googleUrl;
-    } else {
-      // Instant demo login fallback matching Oliver Brown from Figma
-      const demoUser = {
-        id: 'user-oliver-brown',
-        name: 'Oliver Brown',
-        email: 'oliver.brown@domain.io',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=faces',
-      };
-      const token = btoa(JSON.stringify(demoUser));
-      window.location.href = `/?token=${token}`;
     }
   };
 
   const handleEmailLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const demoUser = {
-      id: 'user-oliver-brown',
-      name: email.split('@')[0] || 'Oliver Brown',
-      email: email || 'oliver.brown@domain.io',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=faces',
+    if (!email) return;
+    const user = {
+      id: `user-${Date.now()}`,
+      name: email.split('@')[0],
+      email: email,
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=00A343&color=fff`,
     };
-    const token = btoa(JSON.stringify(demoUser));
+    const token = btoa(JSON.stringify(user));
     window.location.href = `/?token=${token}`;
   };
 

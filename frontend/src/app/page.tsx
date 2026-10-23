@@ -50,16 +50,10 @@ export default function DashboardPage() {
         try {
           setUser(JSON.parse(stored));
         } catch {
-          // Ignore
+          window.location.href = '/login';
         }
       } else {
-        // Oliver Brown default profile matching Figma exactly
-        setUser({
-          id: 'user-oliver-brown',
-          name: 'Oliver Brown',
-          email: 'oliver.brown@domain.io',
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=faces',
-        });
+        window.location.href = '/login';
       }
     }
   }, []);
