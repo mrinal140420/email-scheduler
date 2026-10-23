@@ -184,7 +184,7 @@ router.post('/upload-csv', upload.single('file'), async (req: Request, res: Resp
     const matchedEmails = fileContent.match(EMAIL_REGEX) || [];
 
     // Deduplicate emails
-    const uniqueEmails = Array.from(new Set(matchedEmails.map((e) => e.toLowerCase())));
+    const uniqueEmails = Array.from(new Set(matchedEmails.map((e: string) => e.toLowerCase())));
 
     return res.json({
       filename: req.file.originalname,

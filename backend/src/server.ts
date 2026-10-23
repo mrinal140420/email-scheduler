@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import emailRoutes from './routes/emailRoutes';
@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/admin/queues', setupBullBoard());
 
 // Health Check
-app.get('/health', (_req, res) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
