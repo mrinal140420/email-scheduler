@@ -1,0 +1,28 @@
+{
+  "name": "reachinbox-email-scheduler",
+  "version": "1.0.0",
+  "description": "Production-grade Full-stack Email Job Scheduler for ReachInbox / Outbox Labs",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "test:restart": "cd backend && npm run test:restart",
+    "test:load": "cd backend && npm run test:load",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "keywords": [
+    "reachinbox",
+    "bullmq",
+    "redis",
+    "email-scheduler",
+    "ethereal",
+    "slack",
+    "elasticsearch",
+    "nextjs",
+    "typescript"
+  ],
+  "author": "Mrinal",
+  "license": "MIT"
+}
