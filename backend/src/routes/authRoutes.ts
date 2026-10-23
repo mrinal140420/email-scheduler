@@ -27,6 +27,10 @@ function getFrontendBase(req: Request): string {
       // Ignore
     }
   }
+  const host = req.get('host');
+  if (host && host.includes('render.com')) {
+    return 'https://outboxlabs-email-scheduler-phi.vercel.app';
+  }
   return 'http://localhost:3000';
 }
 
@@ -35,11 +39,12 @@ function getFrontendBase(req: Request): string {
  * Returns Google OAuth Authorization URL
  */
 router.get('/google/url', (req: Request, res: Response) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID;
   const frontendUrl = getFrontendBase(req);
   const backendUrl = getBackendBase(req);
   const callbackUrl = process.env.GOOGLE_CALLBACK_URL || `${backendUrl}/api/auth/google/callback`;
 
-  if (!GOOGLE_CLIENT_ID) {
+  if (!clientId) {
     return res.json({
       configured: false,
       url: `${frontendUrl}/login?demo_auth=true`,
@@ -50,7 +55,7 @@ router.get('/google/url', (req: Request, res: Response) => {
   const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
   const options = {
     redirect_uri: callbackUrl,
-    client_id: GOOGLE_CLIENT_ID,
+    client_id: clientId,
     access_type: 'offline',
     response_type: 'code',
     prompt: 'consent select_account',
@@ -70,6 +75,8 @@ router.get('/google/url', (req: Request, res: Response) => {
  */
 router.get('/google/callback', async (req: Request, res: Response) => {
   const code = req.query.code as string;
+  const clientId = process.env.GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET || GOOGLE_CLIENT_SECRET;
   const frontendUrl = getFrontendBase(req);
   const backendUrl = getBackendBase(req);
   const callbackUrl = process.env.GOOGLE_CALLBACK_URL || `${backendUrl}/api/auth/google/callback`;
@@ -81,8 +88,8 @@ router.get('/google/callback', async (req: Request, res: Response) => {
   try {
     const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
       code,
-      client_id: GOOGLE_CLIENT_ID,
-      client_secret: GOOGLE_CLIENT_SECRET,
+      client_id: clientId,
+      client_secret: clientSecret,
       redirect_uri: callbackUrl,
       grant_type: 'authorization_code',
     });
