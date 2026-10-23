@@ -9,8 +9,24 @@ export default function LoginPage() {
   const [googleUrl, setGoogleUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check if demo auth or fallback requested
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('demo_auth') === 'true') {
+      const demoUser = {
+        id: 'user-oliver-brown',
+        name: 'Oliver Brown',
+        email: 'oliver.brown@domain.io',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=faces',
+      };
+      const token = btoa(JSON.stringify(demoUser));
+      window.location.href = `/?token=${token}`;
+      return;
+    }
+
     authApi.getGoogleLoginUrl().then((res) => {
-      setGoogleUrl(res.url);
+      if (res && res.configured && res.url) {
+        setGoogleUrl(res.url);
+      }
     }).catch(() => {
       // Fallback
     });
