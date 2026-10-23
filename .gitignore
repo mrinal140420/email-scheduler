@@ -39,3 +39,6 @@ Thumbs.db
 
 # Docker volumes
 docker-data/
+
+tools/
+
