@@ -127,7 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Footer controls: Slack Alert & Bull-Board */}
       <div className="space-y-2 pt-4 border-t border-gray-100">
         <a
-          href="http://localhost:5000/admin/queues"
+          href={process.env.NEXT_PUBLIC_BACKEND_URL ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/queues` : "http://localhost:5000/admin/queues"}
           target="_blank"
           rel="noreferrer"
           className="flex items-center gap-2 text-[11px] text-gray-500 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-50 transition-colors"
