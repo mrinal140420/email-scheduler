@@ -3,33 +3,32 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 240, 243, 246;
-  --background-start-rgb: 11, 12, 14;
-  --background-end-rgb: 11, 12, 14;
+  --foreground-rgb: 30, 41, 59;
+  --background: #FFFFFF;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: #0B0C0E;
+  background: #FFFFFF;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
 }
 
-/* Custom scrollbars matching Figma dark UI */
+/* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #141517;
+  background: #F8FAFC;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2A2F35;
+  background: #CBD5E1;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3B82F6;
+  background: #94A3B8;
 }

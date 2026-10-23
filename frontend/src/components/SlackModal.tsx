@@ -39,9 +39,9 @@ export const SlackModal: React.FC<SlackModalProps> = ({
 
     try {
       await authApi.connectSlackWebhook(webhookUrl.trim(), channel.trim());
-      setFeedback({ type: 'success', message: 'Slack connected successfully! Sending test message...' });
+      setFeedback({ type: 'success', message: 'Slack connected! Sending test notification...' });
       await authApi.testSlackWebhook(webhookUrl.trim());
-      setFeedback({ type: 'success', message: 'Slack webhook connected and verified with live test alert!' });
+      setFeedback({ type: 'success', message: 'Slack webhook connected and verified!' });
       onStatusChange();
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to connect Slack webhook' });
@@ -55,7 +55,7 @@ export const SlackModal: React.FC<SlackModalProps> = ({
     setFeedback(null);
     try {
       await authApi.testSlackWebhook();
-      setFeedback({ type: 'success', message: 'Live notification dispatched to Slack! Check your channel.' });
+      setFeedback({ type: 'success', message: 'Live alert posted to your Slack channel!' });
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.response?.data?.error || 'Failed to dispatch test notification' });
     } finally {
@@ -68,7 +68,7 @@ export const SlackModal: React.FC<SlackModalProps> = ({
     setFeedback(null);
     try {
       await authApi.disconnectSlack();
-      setFeedback({ type: 'success', message: 'Slack disconnected successfully.' });
+      setFeedback({ type: 'success', message: 'Slack disconnected.' });
       onStatusChange();
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message });
@@ -78,22 +78,22 @@ export const SlackModal: React.FC<SlackModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-[#141517] border border-[#2A2F35] rounded-2xl shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#2A2F35] flex items-center justify-between bg-[#111214]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-[#00A343] flex items-center justify-center">
               <Bell className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-white font-semibold text-sm">Slack Rate Limit Alerts</h2>
-              <p className="text-[11px] text-gray-400">Instant notifications when hourly quotas are exceeded</p>
+              <h2 className="text-xs font-bold text-gray-900">Slack Quota Alerts</h2>
+              <p className="text-[10px] text-gray-400">Instant notification when a sender hits the hourly limit</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-1 text-gray-400 hover:text-gray-700 rounded-lg"
           >
             <X className="w-4 h-4" />
           </button>
@@ -103,102 +103,89 @@ export const SlackModal: React.FC<SlackModalProps> = ({
         <div className="p-6 space-y-4">
           {feedback && (
             <div
-              className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
+              className={`p-3 rounded-lg border text-xs flex items-center gap-2 ${
                 feedback.type === 'success'
-                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                  : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                  : 'bg-rose-50 border-rose-200 text-rose-700'
               }`}
             >
               {feedback.type === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
               ) : (
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
               )}
               <span>{feedback.message}</span>
             </div>
           )}
 
           {isConnected ? (
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs">
-                <div className="flex items-center gap-2 font-medium mb-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span>Active Slack Connection</span>
-                </div>
-                <p className="text-gray-400 text-[11px] mt-1">
-                  Live webhook alerts will be posted to your configured channel whenever a sender hits its hourly sending limit.
+            <div className="space-y-3">
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
+                <p className="font-semibold flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Slack Webhook Active
+                </p>
+                <p className="text-[11px] text-emerald-600 mt-1">
+                  Alerts will trigger automatically when sender rate limits are reached.
                 </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-1">
                 <button
                   type="button"
                   onClick={handleTestAlert}
                   disabled={isTesting}
-                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-all"
+                  className="flex-1 border border-[#00A343] hover:bg-[#EAF7EE] text-[#00A343] font-medium text-xs py-2 px-3 rounded-full flex items-center justify-center gap-1.5 transition-colors"
                 >
-                  {isTesting ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Send className="w-3.5 h-3.5" />
-                  )}
-                  <span>Send Test Notification</span>
+                  {isTesting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                  <span>Send Test Alert</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleDisconnect}
                   disabled={isSubmitting}
-                  className="flex items-center justify-center gap-2 bg-[#1A1D21] hover:bg-rose-500/20 text-gray-300 hover:text-rose-400 border border-[#2A2F35] font-medium text-xs px-4 py-2.5 rounded-xl transition-all"
+                  className="border border-gray-200 hover:bg-rose-50 text-gray-600 hover:text-rose-600 text-xs py-2 px-3 rounded-full flex items-center justify-center gap-1.5 transition-colors"
                 >
-                  <Unlink className="w-3.5 h-3.5" />
+                  <Unlink className="w-3 h-3" />
                   <span>Disconnect</span>
                 </button>
               </div>
             </div>
           ) : (
-            <form onSubmit={handleConnect} className="space-y-3.5">
+            <form onSubmit={handleConnect} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">
-                  Slack Incoming Webhook URL
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Slack Webhook URL
                 </label>
                 <input
                   type="url"
                   value={webhookUrl}
                   onChange={(e) => setWebhookUrl(e.target.value)}
-                  placeholder="https://hooks.slack.com/services/T00/B00/XXXX"
-                  className="w-full bg-[#1A1D21] border border-[#2A2F35] rounded-xl px-3.5 py-2.5 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 font-mono"
+                  placeholder="https://hooks.slack.com/services/..."
+                  className="w-full bg-[#F4F6F5] border-0 rounded-lg px-3 py-2 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
                 />
-                <span className="text-[10px] text-gray-500 mt-1 block">
-                  Generated in your Slack App &gt; Incoming Webhooks settings
-                </span>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">Channel Name</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Channel Name</label>
                 <input
                   type="text"
                   value={channel}
                   onChange={(e) => setChannel(e.target.value)}
                   placeholder="#email-rate-limits"
-                  className="w-full bg-[#1A1D21] border border-[#2A2F35] rounded-xl px-3.5 py-2 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                  className="w-full bg-[#F4F6F5] border-0 rounded-lg px-3 py-2 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-xs py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-600/20"
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Bell className="w-3.5 h-3.5" />
-                  )}
-                  <span>Connect &amp; Test Slack Alert</span>
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#00A343] hover:bg-[#008F3A] text-white font-medium text-xs py-2.5 rounded-full flex items-center justify-center gap-1.5 transition-colors shadow-sm mt-2"
+              >
+                {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Bell className="w-3 h-3" />}
+                <span>Connect &amp; Verify Slack</span>
+              </button>
             </form>
           )}
         </div>
